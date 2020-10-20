@@ -11,27 +11,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.TextView
-import com.antonchuraev.loader.Model.MessageModel
-import com.antonchuraev.loader.Model.MessagesDB
-import com.antonchuraev.loader.Model.UserModel
+import com.antonchuraev.loader.DataClasses.Post
+import com.antonchuraev.loader.DataClasses.User
 import com.antonchuraev.loader.R
 
 
-class MyExpandableListAdapter(contextP: Context, usersListP: List<UserModel>, bd: MessagesDB) :
+class MyExpandableListAdapter(contextP: Context, usersListP: List<User>, postsMapP: MutableMap<Int, MutableList<Post> >) :
     BaseExpandableListAdapter() {
 
     val context: Context = contextP
 
-    val usersList: List<UserModel> = usersListP
-
-    val dataBase = bd
+    val usersList = usersListP
+    val postsMap = postsMapP
 
     override fun getGroupCount(): Int {
         return usersList.size
     }
 
     override fun getChildrenCount(groupPosition: Int): Int {
-        return dataBase.getAllMessagesById(usersList.get(groupPosition).id).size
+        return postsMap.get(usersList.get(groupPosition).id)!!.size
     }
 
     override fun getGroup(groupPosition: Int): Any {
@@ -39,7 +37,7 @@ class MyExpandableListAdapter(contextP: Context, usersListP: List<UserModel>, bd
     }
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any {
-        return dataBase.getAllMessagesById(usersList.get(groupPosition).id).get(childPosition) //TODO
+        return postsMap.get(usersList.get(groupPosition).id)!!.get(childPosition)
     }
 
     override fun getGroupId(groupPosition: Int): Long {
@@ -62,8 +60,8 @@ class MyExpandableListAdapter(contextP: Context, usersListP: List<UserModel>, bd
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = inflater.inflate(R.layout.user_info, null)
         }
-        val user:UserModel = getGroup(groupPosition) as UserModel
 
+        val user:User = getGroup(groupPosition) as User
 
         val nameText = convertView!!.findViewById<TextView>(R.id.name_text)
         val mailText = convertView.findViewById<TextView>(R.id.mail_text)
@@ -103,7 +101,7 @@ class MyExpandableListAdapter(contextP: Context, usersListP: List<UserModel>, bd
             convertView = inflater.inflate(R.layout.dropdown_message, null)
         }
 
-        val message:MessageModel = getChild(groupPosition , childPosition) as MessageModel
+        val message:Post = getChild(groupPosition , childPosition) as Post
 
         val title = convertView!!.findViewById<TextView>(R.id.tittle_message)
         val messageText = convertView.findViewById<TextView>(R.id.message_text)
